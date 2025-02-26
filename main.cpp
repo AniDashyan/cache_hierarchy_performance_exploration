@@ -8,6 +8,7 @@
 using namespace std::chrono;
 
 const int size = 16 * 256 * 1024 * 64;
+const int iters = 1000;
 std::vector<int> strides = {1, 4, 16, 32, 64, 256, 1024};
 
 template <typename T>
@@ -16,9 +17,11 @@ auto access_time(T& cont, int stride) {
     auto it = cont.begin();
 
     auto start = steady_clock::now();
-    while (it != cont.end()) {
-        sum += *it;
-        std::advance(it, stride);
+    for (int i = 0; i < iters; i++) {
+        while (it != cont.end()) {
+            sum += *it;
+            std::advance(it, stride);
+        }
     }
     auto end = steady_clock::now();
     return (duration_cast<milliseconds>(end - start).count());
@@ -32,7 +35,7 @@ int main() {
     std::cout << std::left << std::setw(5) << "Stride" 
               << std::right << std::setw(10) << "Vector" 
               << std::right << std::setw(10) << "List" << "\n";
-    std::cout << std::string(30, '-') << "\n"; 
+    std::cout << std::string(35, '-') << "\n"; 
 
 
     for (size_t i = 0; i < strides.size(); i++) {

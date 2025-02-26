@@ -37,48 +37,57 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install MSVC Runtime (Windows)
+      if: matrix.os == 'windows-latest'
+      run: choco install vcredist-all -y
+      shell: powershell
+
     - name: Set reusable strings
       id: strings
       shell: bash
       run: |
-        # Set platform-specific build output directory
         if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
         elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-          echo "build-output-dir=${{ github.workspace }}\\build" >> "$GITHUB_OUTPUT"
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -S ${{ github.workspace }}
-
-    - name: Build
       shell: bash
       run: |
-        echo "Build directory: ${{ steps.strings.outputs.build-output-dir }}"
-        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-          cmake --build ${{ steps.strings.outputs.build-output-dir }}
-        elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
-        fi
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -S ${{ github.workspace }}
+
+    - name: Build
+      shell: ${{ matrix.os == 'windows-latest' && 'cmd' || 'bash' }}
+      run: |
+        cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      run: ctest --build-config ${{ matrix.build_type }}
+      shell: ${{ matrix.os == 'windows-latest' && 'cmd' || 'bash' }}
+      run: |
+        dir
+        ctest --build-config ${{ matrix.build_type }} --verbose
 
     - name: Run Built Application on Ubuntu
       if: matrix.os == 'ubuntu-latest'
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: |
-        ./main  # Run the application on Ubuntu
+        ./main
 
     - name: Run Built Application on Windows
       if: matrix.os == 'windows-latest'
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      shell: cmd
       run: |
-        dir .  # List files in the build directory
-        .\main.exe  # Run the application on Windows
+        dir
+        if exist ${{ matrix.build_type }}\main.exe (
+          ${{ matrix.build_type }}\main.exe
+        ) else (
+          echo "main.exe not found in expected directory"
+          exit 1
+        )

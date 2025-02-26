@@ -52,8 +52,13 @@ jobs:
         -S ${{ github.workspace }}
 
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
-           echo ${{ steps.strings.outputs.build-output-dir }}
+      run: |
+        if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+          cmake --build ${{ steps.strings.outputs.build-output-dir }}
+        else
+          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+        fi
+        echo "Build directory: ${{ steps.strings.outputs.build-output-dir }}"
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
@@ -65,9 +70,9 @@ jobs:
       run: |
         ./main  # Run the application on Ubuntu
 
-    # Run built application for Windows
     - name: Run Built Application on Windows
       if: matrix.os == 'windows-latest'
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: |
+        dir .  # List files in the build directory
         .\main.exe  # Run the application on Windows

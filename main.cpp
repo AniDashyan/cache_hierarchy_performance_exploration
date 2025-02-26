@@ -13,7 +13,7 @@ std::vector<int> strides = {1, 4, 16, 32, 64, 256, 1024};
 
 template <typename T>
 auto access_time(T& cont, int stride) {
-    int sum = 0;
+    volatile int sum = 0;
     auto it = cont.begin();
 
     auto start = steady_clock::now();

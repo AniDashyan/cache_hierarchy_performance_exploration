@@ -58,11 +58,15 @@ jobs:
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
 
-    - name: Run Built Application
+    - name: Run Built Application on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: |
-        if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-          ./main
-        elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          .\main.exe
-        fi
+        ./main  # Run the application on Ubuntu
+
+    # Run built application for Windows
+    - name: Run Built Application on Windows
+      if: matrix.os == 'windows-latest'
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: |
+        .\main.exe  # Run the application on Windows

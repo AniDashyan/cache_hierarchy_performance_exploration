@@ -62,7 +62,7 @@ jobs:
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: |
         if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-          ./your_executable_name  # Replace with your actual executable name
+          ./main
         elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-          .\your_executable_name.exe  # Replace with your actual executable name
+          .\main.exe
         fi

@@ -41,7 +41,12 @@ jobs:
       id: strings
       shell: bash
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        # Set platform-specific build output directory
+        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+          echo "build-output-dir=${{ github.workspace }}\\build" >> "$GITHUB_OUTPUT"
+        fi
 
     - name: Configure CMake
       run: >
@@ -54,12 +59,12 @@ jobs:
     - name: Build
       shell: bash
       run: |
+        echo "Build directory: ${{ steps.strings.outputs.build-output-dir }}"
         if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           cmake --build ${{ steps.strings.outputs.build-output-dir }}
         elif [ "${{ matrix.os }}" == "windows-latest" ]; then
           cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
         fi
-        echo "Build directory: ${{ steps.strings.outputs.build-output-dir }}"
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}

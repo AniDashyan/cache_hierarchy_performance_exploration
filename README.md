@@ -63,13 +63,12 @@ After running the program, you will see output similar to this:
 ```text
 Stride    Vector      List
 -----------------------------------
-    1      1795 ms      3153 ms
-    4       429 ms      1849 ms
-   16       165 ms      1979 ms
-   32       106 ms      1804 ms
-   64        63 ms      1846 ms
-  256        22 ms      1738 ms
- 1024        12 ms      1721 ms
+    1      1719 ms      3407 ms
+    4       514 ms      2081 ms
+   16       186 ms      2088 ms
+   32       101 ms      1945 ms
+   64        73 ms      1897 ms
+  256        16 ms      1847 ms
 ```
 
 ## Analysis

@@ -55,7 +55,7 @@ jobs:
       run: |
         if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
           cmake --build ${{ steps.strings.outputs.build-output-dir }}
-        else
+        elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
           cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
         fi
         echo "Build directory: ${{ steps.strings.outputs.build-output-dir }}"
